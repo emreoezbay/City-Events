@@ -1,6 +1,6 @@
 import { Box, Button, CircularProgress, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { getTickets } from '../../apis';
+import { getTickets, insertTicket } from '../../apis';
 import { Ticket } from '../../types/Ticket';
 type Props = {
   id: string;
@@ -10,8 +10,12 @@ type Props = {
 export default function EventActionBox({ id, show }: Props) {
   const [loading, setLoading] = useState<boolean>(false);
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [submiting, setSubmiting] = useState(false);
+  const [error, setError] = useState(false);
 
-  async function getTicketsFromAPI() {
+  async function getTicketsFromAPI(): Promise<void> {
     try {
       setLoading(true);
       const c_tickets = await getTickets(id);
@@ -22,11 +26,36 @@ export default function EventActionBox({ id, show }: Props) {
     }
   }
 
+  async function createATicket(): Promise<any> {
+    if (firstName.length !== 0 && lastName.length !== 0)
+      try {
+        setSubmiting(true);
+        const newTicket = await insertTicket({
+          cityEventId: id,
+          firstName,
+          lastName,
+        });
+        setTickets([...tickets, newTicket]);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setSubmiting(false);
+      }
+  }
+
   useEffect(() => {
     if (show) {
       getTicketsFromAPI();
     }
   }, [show]);
+
+  useEffect(() => {
+    if (firstName.length === 0 || lastName.length === 0) {
+      setError(true);
+    } else {
+      setError(false);
+    }
+  });
 
   return (
     <div style={{ display: show ? '' : 'none' }}>
@@ -41,15 +70,31 @@ export default function EventActionBox({ id, show }: Props) {
       ) : (
         <div>
           <Box sx={{ verticalAlign: 'middle', display: 'inline-flex' }}>
-            <TextField id="filled-basic" label="First Name" variant="filled" />
-            <TextField id="filled-basic" label="Last Name" variant="filled" />
-            <Button variant="text">Add</Button>
+            <TextField
+              error={firstName.length === 0}
+              size="small"
+              label="First Name"
+              value={firstName}
+              variant="filled"
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+            <TextField
+              error={lastName.length === 0}
+              size="small"
+              label="Last Name"
+              value={lastName}
+              variant="filled"
+              onChange={(e) => setLastName(e.target.value)}
+            />
+            <Button disabled={error ?? submiting} variant="text" onClick={createATicket}>
+              {submiting ? <CircularProgress /> : 'Add'}
+            </Button>
           </Box>
           <div></div>
           {tickets.map((ticket) => (
-            <div>
+            <div key={ticket.id}>
               <div>
-                {ticket.firstName} {ticket.lastName}
+                {ticket.firstName} {ticket.lastName} | {ticket.barcode}
               </div>
             </div>
           ))}

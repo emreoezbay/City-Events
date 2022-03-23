@@ -1,13 +1,9 @@
-import React from 'react'
+import React from 'react';
 
 type Props = {
-    children: any
-}
+  children: any;
+};
 
-export default function Main({
-    children
-}: Props) {
-  return (
-    <div>{children}</div>
-  )
+export default function Main({ children }: Props) {
+  return <>{children}</>;
 }

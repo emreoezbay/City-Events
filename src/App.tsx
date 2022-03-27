@@ -3,7 +3,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Home from './pages/Home';
-import Header from './pages/layout/Header';
 import Main from './pages/layout/Main';
 import Page404 from './pages/Page404';
 

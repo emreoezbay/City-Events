@@ -13,7 +13,6 @@ import React, { useEffect, useState } from 'react';
 import { deleteCityEvent, getTickets, insertTicket, deleteTicket } from '../../apis';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Ticket } from '../../types/Ticket';
-import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
 
 type Props = {
   id: string;
@@ -28,7 +27,6 @@ export default function EventActionBox({ id, show }: Props) {
   const [submiting, setSubmiting] = useState(false);
   const [error, setError] = useState(false);
   const [deletingEvent, setDeletingEvent] = useState(false);
-  const [deletingTicket, setDeletingTicket] = useState(false);
 
   async function getTicketsFromAPI(): Promise<void> {
     try {
@@ -41,15 +39,15 @@ export default function EventActionBox({ id, show }: Props) {
     }
   }
 
-  async function deleteTicketAPI(id: string): Promise<any> {
-    try {
-      setDeletingTicket(true);
-      await deleteTicket(id);
-      const newTickets = tickets.filter((t) => t.id !== id);
-      setTickets(newTickets);
-    } catch (e) {
-    } finally {
-      setDeletingTicket(false);
+  async function deleteTicketAPI(id: string | undefined): Promise<any> {
+    if (id) {
+      try {
+        await deleteTicket(id);
+        const newTickets = tickets.filter((t) => t.id !== id);
+        setTickets(newTickets);
+      } catch (e) {
+      } finally {
+      }
     }
   }
 
@@ -131,30 +129,49 @@ export default function EventActionBox({ id, show }: Props) {
             </Button>
           </Box>
           <Box>
-            <Table size="small" aria-label="a dense table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell align="right">Barcode</TableCell>
-                  <TableCell align="right"></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tickets.map((row) => (
-                  <TableRow key={row.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                    <TableCell component="th" scope="row">
-                      {row.firstName} {row.lastName}
-                    </TableCell>
-                    <TableCell align="right">{row.barcode}</TableCell>
-                    <TableCell align="right">{deletingTicket ? <AutoDeleteIcon /> : <DeleteIcon />}</TableCell>
+            {tickets.length ? (
+              <Table size="small" aria-label="a dense table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell align="right">Barcode</TableCell>
+                    <TableCell align="right"></TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {tickets.map((row) => (
+                    <TableRow key={row.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                      <TableCell component="th" scope="row">
+                        {row.firstName} {row.lastName}
+                      </TableCell>
+                      <TableCell align="right">{row.barcode}</TableCell>
+                      <TableCell align="right">
+                        <div
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => {
+                            deleteTicketAPI(row.id);
+                          }}
+                        >
+                          <DeleteIcon color="error" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div style={{ textAlign: 'center' }}>The are no tickets</div>
+            )}
           </Box>
-          <div>
-            <Button disabled={deletingEvent} onClick={deleteCityEventAPI} color="error" startIcon={<DeleteIcon />}>
-              {deletingEvent ? <CircularProgress /> : 'Delete'}
+          <div style={{ textAlign: 'right' }}>
+            <Button
+              sx={{ m: 1 }}
+              disabled={deletingEvent}
+              onClick={deleteCityEventAPI}
+              color="error"
+              startIcon={<DeleteIcon />}
+            >
+              {deletingEvent ? <CircularProgress size={10} /> : 'Delete'}
             </Button>
           </div>
         </div>

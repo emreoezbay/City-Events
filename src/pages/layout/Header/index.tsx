@@ -11,9 +11,6 @@ export default function Header() {
         <li>
           <Link to="/">All Events</Link>
         </li>
-        <li>
-          <Link to="/manage">Manage All Events</Link>
-        </li>
       </ul>
     </div>
   );

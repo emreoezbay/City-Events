@@ -1,4 +1,4 @@
-import { getCityEvents, insertCityEvent } from './events';
-import { getTickets, insertTicket } from './tickets';
+import { getCityEvents, insertCityEvent, deleteCityEvent } from './events';
+import { getTickets, insertTicket, deleteTicket } from './tickets';
 
-export { getCityEvents, insertCityEvent, getTickets, insertTicket };
+export { getCityEvents, insertCityEvent, deleteCityEvent, getTickets, insertTicket, deleteTicket };
